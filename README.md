@@ -2,6 +2,8 @@
 
 A project using FastAPI for the backend, and React as the frontend.
 
+Material UI: npm install @mui/material @emotion/react @emotion/styled
+
 ## Installation Instructions
 
 1. Clone the repository:
