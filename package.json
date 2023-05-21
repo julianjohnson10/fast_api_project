@@ -1,6 +1,6 @@
 {
     "scripts": {
-        "start": "concurrently \"cd backend && uvicorn main:application --reload\" \"cd frontend && npm start\""
+        "start": "concurrently \"cd backend && uvicorn main:app --reload\" \"cd frontend && npm start\""
     },
     "dependencies": {
         "concurrently": "^8.0.1"
