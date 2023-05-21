@@ -3,7 +3,6 @@ import axios from "axios";
 import Box from "@mui/material/Box";
 import { TextField } from "@mui/material";
 import Stack from "@mui/material/Stack";
-import Button from "@mui/material/Button";
 import { DataGrid } from "@mui/x-data-grid";
 import Alert from "@mui/material/Alert";
 
@@ -12,16 +11,8 @@ const PlayerSearch = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [searchedPlayer, setSearchedPlayer] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [hasMorePlayers, setHasMorePlayers] = useState(true);
-  const [rows, setRows] = useState("10");
   const [message, setMessage] = React.useState("");
-
-  const handleChange = (event) => {
-    const selectedRows = event.target.value;
-    setRows(selectedRows);
-    setCurrentPage(1);
-  };
-
+  
   const handleRowClick = (params) => {
     setMessage(`Player "${params.row.full_name}" clicked`);
   };
@@ -29,36 +20,27 @@ const PlayerSearch = () => {
   const fetchPlayers = useCallback(async () => {
     try {
       const response = await axios.get(`http://localhost:8000/all_players`);
-      if (response.data.length < 100) {
-        setHasMorePlayers(false);
-      } else {
-        setHasMorePlayers(true);
-      }
+
       setPlayers(response.data);
     } catch (error) {
       console.error(error);
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, rows]);
+  }, [currentPage]);
 
   const fetchSearchedPlayers = useCallback(async () => {
     try {
       const response = await axios.get(
         `http://localhost:8000/players/${searchedPlayer}`
       );
-      if (response.data.length < parseInt(rows)) {
-        setHasMorePlayers(false);
-      } else {
-        setHasMorePlayers(true);
-      }
       setPlayers(response.data);
     } catch (error) {
       console.error(error);
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, searchedPlayer, rows]);
+  }, [currentPage, searchedPlayer]);
 
   useEffect(() => {
     if (searchedPlayer) {
@@ -74,16 +56,6 @@ const PlayerSearch = () => {
       const searchedValue = event.target.value;
       setSearchedPlayer(searchedValue);
       setCurrentPage(1);
-    }
-  };
-
-  const handleNextPage = () => {
-    setCurrentPage((prevPage) => prevPage + 1);
-  };
-
-  const handlePrevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage((prevPage) => prevPage - 1);
     }
   };
 
@@ -120,10 +92,6 @@ const PlayerSearch = () => {
           {...players}
         />
       </Box>
-      {/* <br>
-      </br>
-      <br>
-      </br> */}
       <Box sx={{ width: "100%", 'padding-top': 30 }}>{message && <Alert severity="info">{message}</Alert>}</Box>
     </Stack>
   );
