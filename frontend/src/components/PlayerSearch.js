@@ -12,7 +12,7 @@ const PlayerSearch = () => {
   const [searchedPlayer, setSearchedPlayer] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [message, setMessage] = React.useState("");
-  
+
   const handleRowClick = (params) => {
     setMessage(`Player "${params.row.full_name}" clicked`);
   };
@@ -92,7 +92,7 @@ const PlayerSearch = () => {
           {...players}
         />
       </Box>
-      <Box sx={{ width: "100%", 'padding-top': 30 }}>{message && <Alert severity="info">{message}</Alert>}</Box>
+      <Box sx={{ width: "100%", 'paddingTop': 30 }}>{message && <Alert severity="info">{message}</Alert>}</Box>
     </Stack>
   );
 };

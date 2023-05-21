@@ -94,7 +94,7 @@ const TeamSearch = () => {
           {...teams}
         />
       </Box>
-      <Box sx={{ width: "100%", 'padding-top': 30 }}>{message && <Alert severity="info">{message}</Alert>}</Box>
+      <Box sx={{ width: "100%", 'paddingTop': 30 }}>{message && <Alert severity="info">{message}</Alert>}</Box>
     </Stack>
   );
 };
