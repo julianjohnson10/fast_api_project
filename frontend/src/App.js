@@ -1,14 +1,12 @@
 import logo from './logo.svg';
 import './App.css';
 import React from 'react';
-import Component1 from './components/Component1';
-import Component2 from './components/Component2';
+import PlayerSearch from './components/PlayerSearch';
 
 const App = () => {
   return (
     <div>
-      <Component1 />
-      <Component2 />
+      <PlayerSearch />
     </div>
   );
 }

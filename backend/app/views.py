@@ -1,24 +1,35 @@
-from fastapi import APIRouter
-from app.models import Item, Category
+from fastapi import APIRouter, Query
+from app.models import Item, Category, Player, ResponseModel, ErrorResponseModel
+from nba_api.stats.static import players as nba_players
+from fastapi.encoders import jsonable_encoder
+from app.database import player_helper
+from typing import List
+from motor import motor_asyncio
+from motor.motor_asyncio import AsyncIOMotorCursor
 
 router = APIRouter()
+MONGO_DETAILS = "mongodb://localhost:27017"
+client = motor_asyncio.AsyncIOMotorClient(MONGO_DETAILS)
+db = client['players_db']
+collection = db['players_collection']
 
-@router.get("/api/data")
-def get_data():
-    # Code to handle GET request
-    return {"message": "Hello from FastAPI!"}
+@router.get('/players')
+async def get_players(page: int = Query(1, ge=1), batch_size: int = Query(100, ge=1)):
+    skip = (page - 1) * batch_size
+    limit = batch_size
 
-@router.post("/api/data")
-def create_data():
-    # Code to handle POST request
-    return {"message": "Data created successfully"}
+    cursor: AsyncIOMotorCursor = collection.find().skip(skip).limit(limit)
+    players = await cursor.to_list(None)
 
-items = {
-    0: Item(name="Hammer", price=9.99, count=20, id=0, category=Category.TOOLS),
-    1: Item(name="Pliers", price=3.99, count=10, id=1, category=Category.TOOLS),
-    2: Item(name="Nails", price=1.99, count=100, id=2, category=Category.CONSUMABLES)
-}
+    return [player_helper(player) for player in players]
 
-@router.get("/items")
-def index() -> dict[str, dict[int, Item]]:
-    return {"items": items}
+@router.get('/players/{searched_player}')
+async def get_players_searched(searched_player: str, page: int = Query(1, ge=1), batch_size: int = Query(100, ge=1)):
+    skip = (page - 1) * batch_size
+    limit = batch_size
+    substring = searched_player
+    pattern = f".*{substring}.*"
+    query = {"full_name": {"$regex": pattern, "$options": "i"}}
+    cursor: AsyncIOMotorCursor = collection.find(query).skip(skip).limit(limit)
+    players = await cursor.to_list(None)
+    return [player_helper(player) for player in players]

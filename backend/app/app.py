@@ -1,12 +1,15 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.views import router
+from .database import router as database_router
+from .database import start_db
+from .views import router as views_router
+import asyncio
 
-app = FastAPI()
+app = FastAPI(debug=True)
 
 # Include your routers or additional configuration here
-app.include_router(router)
-
+app.include_router(database_router)
+app.include_router(views_router)
 # You can add more configuration or middleware here if needed
 
 origins = [
@@ -25,7 +28,7 @@ app.add_middleware(
 # You might also define startup and shutdown events if necessary
 @app.on_event("startup")
 async def startup_event():
-    # Code to run during application startup
+    asyncio.create_task(start_db())
     pass
 
 @app.on_event("shutdown")
