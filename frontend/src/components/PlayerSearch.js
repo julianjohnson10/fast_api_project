@@ -1,16 +1,15 @@
 import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import Box from "@mui/material/Box";
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
-import Typography from "@mui/material/Typography";
 import { TextField } from "@mui/material";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import Divider from "@mui/material/Divider";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import Select from "@mui/material/Select";
 
 const PlayerSearch = () => {
   const [players, setPlayers] = useState([]);
@@ -18,13 +17,20 @@ const PlayerSearch = () => {
   const [searchedPlayer, setSearchedPlayer] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMorePlayers, setHasMorePlayers] = useState(true);
+  const [rows, setRows] = useState("10");
+
+  const handleChange = (event) => {
+    const selectedRows = event.target.value;
+    setRows(selectedRows);
+    setCurrentPage(1);
+  };
 
   const fetchPlayers = useCallback(async () => {
     try {
       const response = await axios.get(
-        `http://localhost:8000/players?page=${currentPage}`
+        `http://localhost:8000/players?page=${currentPage}&batch_size=${rows}`
       );
-      if (response.data.length < 100) {
+      if (response.data.length < parseInt(rows)) {
         setHasMorePlayers(false);
       } else {
         setHasMorePlayers(true);
@@ -35,14 +41,14 @@ const PlayerSearch = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage]);
+  }, [currentPage, rows]);
 
   const fetchSearchedPlayers = useCallback(async () => {
     try {
       const response = await axios.get(
-        `http://localhost:8000/players/${searchedPlayer}?page=${currentPage}`
+        `http://localhost:8000/players/${searchedPlayer}?page=${currentPage}&batch_size=${rows}`
       );
-      if (response.data.length < 100) {
+      if (response.data.length < parseInt(rows)) {
         setHasMorePlayers(false);
       } else {
         setHasMorePlayers(true);
@@ -53,7 +59,7 @@ const PlayerSearch = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, searchedPlayer]);
+  }, [currentPage, searchedPlayer, rows]);
 
   useEffect(() => {
     if (searchedPlayer) {
@@ -92,7 +98,7 @@ const PlayerSearch = () => {
 
       <Box
         component="form"
-        sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}
+        sx={{ width: "100%", bgcolor: "background.paper",display:"flex", justifyContent: "space-between",}}
         noValidate
         autoComplete="off"
       >
@@ -102,12 +108,25 @@ const PlayerSearch = () => {
           placeholder="Search Players"
           onKeyDown={handleSearchChange}
         />
+
+        <FormControl fullWidth>
+          <InputLabel id="demo-simple-select-label">Rows Shown</InputLabel>
+          <Select
+            labelId="demo-simple-select-label"
+            id="demo-simple-select"
+            value={rows}
+            label="Rows Shown"
+            onChange={handleChange}
+          >
+            <MenuItem value={10}>10</MenuItem>
+            <MenuItem value={50}>50</MenuItem>
+            <MenuItem value={100}>100</MenuItem>
+          </Select>
+        </FormControl>
       </Box>
       <Box sx={{ display: "flex", flexWrap: "wrap" }}>
         {players.map((player) => (
-          <Box
-            sx={{ width: "100%", bgcolor: "background.paper" }}
-          >
+          <Box sx={{ width: "100%", bgcolor: "background.paper" }}>
             <nav aria-label="main mailbox folders">
               <List>
                 <ListItem disablePadding key={player.id}>
@@ -118,30 +137,6 @@ const PlayerSearch = () => {
               </List>
             </nav>
           </Box>
-          // <Card
-          //   className="card"
-          //   key={player.id}
-          //   sx={{ minWidth: 275, margin: 1 }}
-          //   onClick={() =>
-          //     alert(
-          //       player.full_name +
-          //         "\n" +
-          //         player.first_name +
-          //         "\n" +
-          //         player.last_name
-          //     )
-          //   }
-          // >
-          //   <CardContent>
-          //     <Typography variant="h5" component="div">
-          //       Full Name: {player.full_name}
-          //     </Typography>
-          //     <Typography sx={{ mb: 1.5 }} color="text.secondary">
-          //       First Name: {player.first_name}
-          //     </Typography>
-          //     <Typography variant="body2">Last Name: {player.last_name}</Typography>
-          //   </CardContent>
-          // </Card>
         ))}
       </Box>
       <div>

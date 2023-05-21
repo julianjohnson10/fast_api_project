@@ -1,9 +1,5 @@
 from fastapi import APIRouter, Query
-from app.models import Item, Category, Player, ResponseModel, ErrorResponseModel
-from nba_api.stats.static import players as nba_players
-from fastapi.encoders import jsonable_encoder
 from app.database import player_helper
-from typing import List
 from motor import motor_asyncio
 from motor.motor_asyncio import AsyncIOMotorCursor
 
