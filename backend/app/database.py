@@ -33,6 +33,5 @@ async def create_players():
 
 async def start_db():
     while True:
-        print("creating players")
         await create_players()
         await asyncio.sleep(3600)  # Adjust the interval as per your requirements

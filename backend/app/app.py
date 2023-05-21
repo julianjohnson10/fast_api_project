@@ -1,16 +1,13 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .database import router as database_router
-from .database import start_db
 from .views import router as views_router
+from .database import start_db, client
 import asyncio
 
-app = FastAPI(debug=True)
-
-# Include your routers or additional configuration here
+app = FastAPI()
 app.include_router(database_router)
 app.include_router(views_router)
-# You can add more configuration or middleware here if needed
 
 origins = [
     "http://localhost:3000",
@@ -25,13 +22,13 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-# You might also define startup and shutdown events if necessary
 @app.on_event("startup")
 async def startup_event():
     asyncio.create_task(start_db())
     pass
 
+"""When app shuts down."""
 @app.on_event("shutdown")
 async def shutdown_event():
-    # Code to run during application shutdown
+    await client.close()
     pass

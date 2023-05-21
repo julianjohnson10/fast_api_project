@@ -2,14 +2,10 @@ import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import Box from "@mui/material/Box";
 import { TextField } from "@mui/material";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemText from "@mui/material/ListItemText";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import Select from "@mui/material/Select";
+import Stack from "@mui/material/Stack";
+import Button from "@mui/material/Button";
+import { DataGrid } from "@mui/x-data-grid";
+import Alert from "@mui/material/Alert";
 
 const PlayerSearch = () => {
   const [players, setPlayers] = useState([]);
@@ -18,6 +14,7 @@ const PlayerSearch = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMorePlayers, setHasMorePlayers] = useState(true);
   const [rows, setRows] = useState("10");
+  const [message, setMessage] = React.useState("");
 
   const handleChange = (event) => {
     const selectedRows = event.target.value;
@@ -25,12 +22,14 @@ const PlayerSearch = () => {
     setCurrentPage(1);
   };
 
+  const handleRowClick = (params) => {
+    setMessage(`Player "${params.row.full_name}" clicked`);
+  };
+
   const fetchPlayers = useCallback(async () => {
     try {
-      const response = await axios.get(
-        `http://localhost:8000/players?page=${currentPage}&batch_size=${rows}`
-      );
-      if (response.data.length < parseInt(rows)) {
+      const response = await axios.get(`http://localhost:8000/all_players`);
+      if (response.data.length < 100) {
         setHasMorePlayers(false);
       } else {
         setHasMorePlayers(true);
@@ -46,7 +45,7 @@ const PlayerSearch = () => {
   const fetchSearchedPlayers = useCallback(async () => {
     try {
       const response = await axios.get(
-        `http://localhost:8000/players/${searchedPlayer}?page=${currentPage}&batch_size=${rows}`
+        `http://localhost:8000/players/${searchedPlayer}`
       );
       if (response.data.length < parseInt(rows)) {
         setHasMorePlayers(false);
@@ -67,7 +66,7 @@ const PlayerSearch = () => {
     } else {
       fetchPlayers().then(() => setIsLoading(false));
     }
-  }, [currentPage, searchedPlayer, fetchPlayers, fetchSearchedPlayers]);
+  }, [currentPage, searchedPlayer]);
 
   const handleSearchChange = async (event) => {
     if (event.key === "Enter") {
@@ -92,62 +91,41 @@ const PlayerSearch = () => {
     return <p>Loading...</p>;
   }
 
-  return (
-    <div>
-      <h1>Player Search</h1>
+  const columns = [
+    { field: "id", headerName: "Player ID", width: 150 },
+    { field: "full_name", headerName: "Player Name", width: 200 },
+    { field: "first_name", headerName: "First Name", width: 150 },
+    { field: "last_name", headerName: "Last Name", width: 150 },
+    { field: "is_active", headerName: "Is Active?", width: 150 },
+  ];
 
-      <Box
-        component="form"
-        sx={{ width: "100%", bgcolor: "background.paper",display:"flex", justifyContent: "space-between",}}
-        noValidate
-        autoComplete="off"
-      >
+  return (
+    <Stack spacing={2} sx={{ width: "100%" }}>
+      <h1>Player Search</h1>
+      <Box sx={{ height: 600, width: "100%" }}>
         <TextField
           id="standard"
           type="text"
           placeholder="Search Players"
           onKeyDown={handleSearchChange}
         />
-
-        <FormControl fullWidth>
-          <InputLabel id="demo-simple-select-label">Rows Shown</InputLabel>
-          <Select
-            labelId="demo-simple-select-label"
-            id="demo-simple-select"
-            value={rows}
-            label="Rows Shown"
-            onChange={handleChange}
-          >
-            <MenuItem value={10}>10</MenuItem>
-            <MenuItem value={50}>50</MenuItem>
-            <MenuItem value={100}>100</MenuItem>
-          </Select>
-        </FormControl>
+        <DataGrid
+          rows={players}
+          columns={columns}
+          initialState={{
+            pagination: { paginationModel: { pageSize: 10 } },
+          }}
+          pageSizeOptions={[10, 25, 50, 100]}
+          onRowClick={handleRowClick}
+          {...players}
+        />
       </Box>
-      <Box sx={{ display: "flex", flexWrap: "wrap" }}>
-        {players.map((player) => (
-          <Box sx={{ width: "100%", bgcolor: "background.paper" }}>
-            <nav aria-label="main mailbox folders">
-              <List>
-                <ListItem disablePadding key={player.id}>
-                  <ListItemButton>
-                    <ListItemText primary={player.full_name} />
-                  </ListItemButton>
-                </ListItem>
-              </List>
-            </nav>
-          </Box>
-        ))}
-      </Box>
-      <div>
-        <button onClick={handlePrevPage} disabled={currentPage === 1}>
-          Prev Page
-        </button>
-        <button onClick={handleNextPage} disabled={!hasMorePlayers}>
-          Next Page
-        </button>
-      </div>
-    </div>
+      {/* <br>
+      </br>
+      <br>
+      </br> */}
+      <Box sx={{ width: "100%", 'padding-top': 30 }}>{message && <Alert severity="info">{message}</Alert>}</Box>
+    </Stack>
   );
 };
 

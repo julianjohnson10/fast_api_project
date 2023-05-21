@@ -19,13 +19,29 @@ async def get_players(page: int = Query(1, ge=1), batch_size: int = Query(100, g
 
     return [player_helper(player) for player in players]
 
+@router.get('/all_players')
+async def get_players():
+    cursor: AsyncIOMotorCursor = collection.find()
+    players = await cursor.to_list(None)
+
+    return [player_helper(player) for player in players]
+
+# @router.get('/players/{searched_player_paginated}')
+# async def get_players_searched(searched_player: str, page: int = Query(1, ge=1), batch_size: int = Query(100, ge=1)):
+#     skip = (page - 1) * batch_size
+#     limit = batch_size
+#     substring = searched_player
+#     pattern = f".*{substring}.*"
+#     query = {"full_name": {"$regex": pattern, "$options": "i"}}
+#     cursor: AsyncIOMotorCursor = collection.find(query).skip(skip).limit(limit)
+#     players = await cursor.to_list(None)
+#     return [player_helper(player) for player in players]
+
 @router.get('/players/{searched_player}')
-async def get_players_searched(searched_player: str, page: int = Query(1, ge=1), batch_size: int = Query(100, ge=1)):
-    skip = (page - 1) * batch_size
-    limit = batch_size
+async def get_players_searched(searched_player: str):
     substring = searched_player
     pattern = f".*{substring}.*"
     query = {"full_name": {"$regex": pattern, "$options": "i"}}
-    cursor: AsyncIOMotorCursor = collection.find(query).skip(skip).limit(limit)
+    cursor: AsyncIOMotorCursor = collection.find(query)
     players = await cursor.to_list(None)
     return [player_helper(player) for player in players]

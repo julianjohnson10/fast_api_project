@@ -3,6 +3,7 @@
         "start": "concurrently \"cd backend && uvicorn main:app --reload\" \"cd frontend && npm start\""
     },
     "dependencies": {
+        "@mui/x-data-grid": "^6.5.0",
         "concurrently": "^8.0.1"
     }
 }
