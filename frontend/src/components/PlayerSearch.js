@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import Box from "@mui/material/Box";
-import { TextField } from "@mui/material";
+import { TextField, Grid } from "@mui/material";
 import Stack from "@mui/material/Stack";
 import { DataGrid } from "@mui/x-data-grid";
 import Alert from "@mui/material/Alert";
@@ -22,11 +22,17 @@ const PlayerSearch = () => {
 
   const handleRowClick = (params) => {
     setMessage(`Player "${params.row.full_name}" clicked`);
-    setSelectedImage(
-      `https://ak-static.cms.nba.com/wp-content/uploads/headshots/nba/latest/260x190/${params.row.id}.png`
-    );
+    const playerId = params.row.id;
+    const imageUrl = `https://ak-static.cms.nba.com/wp-content/uploads/headshots/nba/latest/1040x760/${playerId}.png`;
+    const defaultImageUrl =
+      "https://cdn.nba.com/headshots/nba/latest/1040x760/fallback.png";
+    setSelectedImage(imageUrl);
+    const img = new Image();
+    img.src = imageUrl;
+    img.onerror = () => {
+      setSelectedImage(defaultImageUrl);
+    };
   };
-  
 
   const fetchPlayers = useCallback(async () => {
     try {
@@ -89,41 +95,47 @@ const PlayerSearch = () => {
   return (
     <Stack spacing={2} sx={{ width: "100%" }}>
       <h1>Player Search</h1>
-      <Box sx={{ height: "100%", width: "50%" }}>
-        <TextField
-          id="standard"
-          type="text"
-          placeholder="Search Players"
-          onKeyDown={handleSearchChange}
-        />
-
-        <FormControlLabel
-          control={
-            <Switch
-              checked={checked}
-              onChange={handleChange}
-              inputProps={{ "aria-label": "controlled" }}
+      <Grid container spacing={2}>
+        <Grid item xs={6}>
+          <Box sx={{ height: "100%", width: "100%" }}>
+            <TextField
+              id="standard"
+              type="text"
+              placeholder="Search Players"
+              onKeyDown={handleSearchChange}
             />
-          }
-          label="Historic Players"
-        />
 
-        <DataGrid
-          rows={players}
-          columns={columns}
-          initialState={{
-            pagination: { paginationModel: { pageSize: 10 } },
-          }}
-          pageSizeOptions={[10, 25, 50, 100]}
-          onRowClick={handleRowClick}
-          {...players}
-        />
-        {selectedImage && (
-          <div>
-            <img src={selectedImage} alt="Player" />
-          </div>
-        )}
-      </Box>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={checked}
+                  onChange={handleChange}
+                  inputProps={{ "aria-label": "controlled" }}
+                />
+              }
+              label="Historic Players"
+            />
+
+            <DataGrid
+              rows={players}
+              columns={columns}
+              initialState={{
+                pagination: { paginationModel: { pageSize: 10 } },
+              }}
+              pageSizeOptions={[10, 25, 50, 100]}
+              onRowClick={handleRowClick}
+              {...players}
+            />
+          </Box>
+        </Grid>
+        <Grid item xs={6}>
+          {selectedImage && (
+            <div>
+              <img src={selectedImage} alt="Player" />
+            </div>
+          )}
+        </Grid>
+      </Grid>
       <Box sx={{ width: "100%", paddingTop: 30 }}>
         {message && <Alert severity="info">{message}</Alert>}
       </Box>
