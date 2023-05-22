@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Query
-from app.database import player_helper, team_helper, MONGO_DETAILS, client, players_table, teams_table
+from app.database import player_helper, team_helper, team_info_helper, MONGO_DETAILS, client, players_table, player_images_table,teams_table, team_info_table
 from motor import motor_asyncio
 from motor.motor_asyncio import AsyncIOMotorCursor
 
@@ -28,6 +28,20 @@ async def get_teams():
     teams = await cursor.to_list(None)
 
     return [team_helper(team) for team in teams]
+
+@router.get('/team_info')
+async def get_team_info():
+    cursor: AsyncIOMotorCursor = team_info_table.find()
+    teams = await cursor.to_list(None)
+
+    return [team_info_helper(team) for team in teams]
+
+@router.get('/player_images')
+async def get_player_images():
+    cursor: AsyncIOMotorCursor = player_images_table.find()
+    players = await cursor.to_list(None)
+
+    return [player_helper(player) for player in players]
 
 @router.get('/players/{searched_player}')
 async def get_players_searched(searched_player: str):

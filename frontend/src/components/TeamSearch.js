@@ -76,7 +76,7 @@ const TeamSearch = () => {
   return (
     <Stack spacing={2} sx={{ width: "100%" }}>
       <h1>Team Search</h1>
-      <Box sx={{ height: 600, width: "100%" }}>
+      <Box sx={{ height: "100%", width: "100%" }}>
         <TextField
           id="standard"
           type="text"
@@ -94,7 +94,7 @@ const TeamSearch = () => {
           {...teams}
         />
       </Box>
-      <Box sx={{ width: "100%", 'paddingTop': 30 }}>{message && <Alert severity="info">{message}</Alert>}</Box>
+      <Box sx={{ height:"100%",width: "100%", 'paddingTop': 30 }}>{message && <Alert severity="info">{message}</Alert>}</Box>
     </Stack>
   );
 };

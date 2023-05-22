@@ -25,10 +25,8 @@ app.add_middleware(
 @app.on_event("startup")
 async def startup_event():
     asyncio.create_task(start_db())
-    pass
 
 """When app shuts down."""
 @app.on_event("shutdown")
 async def shutdown_event():
     await client.close()
-    pass
