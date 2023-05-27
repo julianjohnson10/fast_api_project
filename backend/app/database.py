@@ -28,13 +28,6 @@ def player_helper(player) -> dict:
         "last_name": player['last_name'],
         "is_active": player['is_active'],}
 
-def player_image_helper(player) -> dict:
-    return {
-        "_id": str(player["_id"]),
-        "id": player['id'],
-        "image": player["image"],  # Convert ObjectId to string
-}
-
 def team_helper(team) -> dict:
     return {
         "_id": str(team["_id"]),
@@ -131,44 +124,24 @@ async def create_teams():
         else:
             print(f"Team with ID {team_id} already exists. Skipping insertion.")
 
-# async def create_team_info():
+async def create_team_info():
 
-#     all_teams = teams.get_teams()
-#     for team in all_teams:
-#         team_id = team['id']
-#         team_info = endpoints.teamplayerdashboard.TeamPlayerDashboard(team_id=team_id,season='2022-23')
-#         existing_team = await team_info_table.find_one({'TEAM_ID': team_id})
-#         if existing_team is None:
-#             info = team_info.get_normalized_dict()
-#             team_overall = info['TeamOverall']
-#             await team_info_table.insert_one({'TeamOverall':team_overall})
-#             print(f"Team info with ID {team_id} created!")
-#         else:
-#             print(f"Team info with ID {team_id} already exists. Skipping insertion.")
-
-async def add_player_images():
-    all_players = players.get_players()
-    async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=60)) as session:
-        for player in all_players:
-            player_id = player['id']
-            image_url = f'c'
-            existing_player = await player_images_table.find_one({'id': player_id})
-            
-            if existing_player is None:
-                try:
-                    async with session.get(image_url) as response:
-                        image_data = await response.read()
-                    await player_images_table.insert_one({'id': player_id, 'image': image_data})
-                    print(f"Player image added for {player_id}!")
-                except aiohttp.ClientError as e:
-                    print(f"Error occurred while fetching image for player {player_id}: {str(e)}")
-            else:
-                print(f"Player image with {player_id} already exists! Skipping insertion.")
+    all_teams = teams.get_teams()
+    for team in all_teams:
+        team_id = team['id']
+        team_info = endpoints.teamplayerdashboard.TeamPlayerDashboard(team_id=team_id,season='2022-23')
+        existing_team = await team_info_table.find_one({'TEAM_ID': team_id})
+        if existing_team is None:
+            info = team_info.get_normalized_dict()
+            team_overall = info['TeamOverall']
+            await team_info_table.insert_one({'TeamOverall':team_overall})
+            print(f"Team info with ID {team_id} created!")
+        else:
+            print(f"Team info with ID {team_id} already exists. Skipping insertion.")
 
 async def start_db():
     while True:
         await create_players()
         await create_teams()
-        # await create_team_info()
-        await add_player_images()
+        await create_team_info()
         await asyncio.sleep(3600)
